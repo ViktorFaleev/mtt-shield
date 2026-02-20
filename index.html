@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script src="https://telegram.org"></script>
+    <title>MTT Shield Terminal</title>
+    <style>
+        /* База для масштабируемости (Flexbox) */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100vh; overflow: hidden; margin: 0; padding: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; }
+        .terminal-container { 
+            display: flex; flex-direction: column; align-items: center; 
+            height: 100vh; padding: 15px 25px; justify-content: space-around;
+            background: radial-gradient(circle at top, #1a1a1a 0%, #000 90%);
+        }
+        .shield-img { 
+            width: 100%; max-width: 320px; max-height: 40vh; object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(243, 186, 47, 0.4)); animation: pulse 4s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
+        .stats-grid { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-card { background: rgba(30, 35, 41, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; text-align: center; }
+        .val { font-size: 15px; color: #f3ba2f; font-weight: bold; }
+        .btn-group { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .btn { background: #f3ba2f; color: #000; border: none; padding: 16px; width: 100%; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-transform: uppercase; }
+        .btn-sos { background: #ff4d4d; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div style="color:#f3ba2f; font-weight:bold; letter-spacing:2px;">MTT SHIELD TERMINAL</div>
+        <!-- ПРЯМАЯ ССЫЛКА НА ТВОЙ ЩИТ -->
+        <img src="https://telegra.ph" class="shield-img" alt="MTT Shield">
+        <div class="stats-grid">
+            <div class="stat-card"><div style="font-size:8px;color:#848e9c">RESERVE POOL</div><div class="val">$1,250.00</div></div>
+            <div class="stat-card"><div style="font-size:8px;color:#848e9c">VERIFIED NODES</div><div class="val">452</div></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="tg.sendData('reg')">🛡️ ВСТУПИТЬ В РЕЕСТР</button>
+            <button class="btn btn-sos" onclick="tg.sendData('sos')">🚨 СИГНАЛ SOS</button>
+        </div>
+        <div style="font-size:9px; color:#444;">SECURED BY MTT SHIELD PROTOCOL v1.0.0</div>
+    </div>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.setHeaderColor('#000000');
+        tg.setBackgroundColor('#000000');
+    </script>
+</body>
+</html>
