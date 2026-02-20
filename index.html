@@ -5,48 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org"></script>
     <style>
-        /* Жесткая блокировка скролла - фундамент */
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100%; overflow: hidden !important; background: #000; color: #fff; font-family: sans-serif; position: fixed; }
-        .app-container { display: flex; flex-direction: column; align-items: center; height: 100vh; padding: 20px; justify-content: space-around; background: radial-gradient(circle at top, #1a1a1a 0%, #000 90%); }
-        
-        /* ТВОЙ ЩИТ - ГАРАНТИЯ ОТОБРАЖЕНИЯ */
-        .main-shield { width: 100%; max-width: 380px; max-height: 48vh; object-fit: contain; filter: drop-shadow(0 0 25px rgba(243, 186, 47, 0.4)); animation: pulse 4s infinite ease-in-out; }
-        @keyframes pulse { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
-        
-        .btn-group { width: 100%; display: flex; flex-direction: column; gap: 12px; max-width: 400px; }
+        .container { display: flex; flex-direction: column; align-items: center; height: 100vh; padding: 20px; justify-content: space-around; background: radial-gradient(circle at top, #1a1a1a 0%, #000 90%); }
+        .shield { width: 100%; max-width: 380px; max-height: 48vh; object-fit: contain; filter: drop-shadow(0 0 25px rgba(243, 186, 47, 0.4)); animation: p 4s infinite; }
+        @keyframes p { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
         .btn { background: #f3ba2f; color: #000; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-transform: uppercase; }
-        .btn-sos { background: #ff4d4d; color: #fff; }
+        .btn-sos { background: #ff4d4d; color: #fff; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="container">
         <div style="color:#f3ba2f; font-weight:bold; letter-spacing:2px;">MTT SHIELD TERMINAL</div>
-        <img src="shield.jpg" class="main-shield" alt="MTT Shield">
-        
-        <div class="btn-group">
-            <button class="btn" onclick="sendSignal('🛡️ ЗАПРОС РЕГИСТРАЦИИ')">🛡️ Вступить в реестр</button>
-            <button class="btn btn-sos" onclick="sendSignal('🚨 СИГНАЛ SOS!')">🚨 Сигнал SOS</button>
+        <img src="shield.jpg" class="shield">
+        <div style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <button class="btn" onclick="send('🛡️ РЕГИСТРАЦИЯ')">🛡️ Вступить в реестр</button>
+            <button class="btn btn-sos" onclick="send('🚨 SOS!')">🚨 Сигнал SOS</button>
         </div>
     </div>
-
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.disableVerticalSwipes();
 
-        // СЮДА МЫ ВСТАВИМ ТВОИ ДАННЫЕ В СЛЕДУЮЩЕМ ШАГУ
-        const BOT_TOKEN = 'ТВОЙ_НОВЫЙ_ТОКЕН';
-        const ADMIN_ID = 'ТВОЙ_ID';
+        const BOT_TOKEN = '8485684459:AAFTJCh1fmNDULIQ_atIeahhZdOu20yLVk8';
+        const ADMIN_ID = '5268622983';
 
-        function sendSignal(msg) {
+        function send(msg) {
             const user = tg.initDataUnsafe.user;
             const text = `${msg}\nЮзер: @${user.username || 'n/a'}\nID: ${user.id}`;
-            
             fetch(`https://api.telegram.org{BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}`)
-            .then(() => {
-                tg.showAlert('✅ Сигнал отправлен в MTT Protocol!');
-            });
+            .then(() => { tg.showAlert('✅ Сигнал отправлен!'); });
         }
     </script>
 </body>
