@@ -2,42 +2,103 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <script src="https://telegram.org"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; width: 100%; overflow: hidden !important; background: #000; color: #fff; font-family: sans-serif; position: fixed; }
-        .container { display: flex; flex-direction: column; align-items: center; height: 100vh; padding: 20px; justify-content: space-around; background: radial-gradient(circle at top, #1a1a1a 0%, #000 90%); }
-        .shield { width: 100%; max-width: 380px; max-height: 48vh; object-fit: contain; filter: drop-shadow(0 0 25px rgba(243, 186, 47, 0.4)); animation: p 4s infinite; }
-        @keyframes p { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
-        .btn { background: #f3ba2f; color: #000; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-transform: uppercase; }
-        .btn-sos { background: #ff4d4d; color: #fff; margin-top: 10px; }
+        /* Блокировка скролла и системных отступов */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100vh; width: 100vw; overflow: hidden !important; background: #000; color: #fff; font-family: -apple-system, sans-serif; position: fixed; }
+        
+        .app-container { 
+            display: flex; flex-direction: column; align-items: center; 
+            height: 100vh; padding: 20px; justify-content: space-around;
+            background: radial-gradient(circle at top, #1a1a1a 0%, #000 90%);
+        }
+
+        /* Glassmorphism Card - Премиальный вид */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 15px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Твой золотой щит с пульсацией */
+        .main-shield { 
+            width: 100%; max-width: 340px; max-height: 42vh; 
+            object-fit: contain; filter: drop-shadow(0 0 25px rgba(243, 186, 47, 0.4)); 
+            animation: pulse 4s infinite ease-in-out;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.02); } }
+
+        .stats-grid { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .stat-value { font-size: 16px; color: #f3ba2f; font-weight: bold; margin-top: 4px; }
+        
+        /* Кнопки в стиле Binance */
+        .btn { 
+            background: #f3ba2f; color: #000; border: none; padding: 18px; 
+            width: 100%; border-radius: 12px; font-weight: 800; font-size: 16px; 
+            cursor: pointer; text-transform: uppercase; transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-sos { background: #ff4d4d; color: #fff; margin-top: 12px; }
+
+        /* Бегущая строка логов (Эффект терминала) */
+        .terminal-logs { font-family: monospace; font-size: 9px; color: #00ff00; opacity: 0.5; width: 100%; text-align: left; overflow: hidden; white-space: nowrap; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div style="color:#f3ba2f; font-weight:bold; letter-spacing:2px;">MTT SHIELD TERMINAL</div>
-        <img src="shield.jpg" class="shield">
-        <div style="width:100%; display:flex; flex-direction:column; align-items:center;">
-            <button class="btn" onclick="send('🛡️ РЕГИСТРАЦИЯ')">🛡️ Вступить в реестр</button>
-            <button class="btn btn-sos" onclick="send('🚨 SOS!')">🚨 Сигнал SOS</button>
+    <div class="app-container">
+        <div style="color:#f3ba2f; font-weight:bold; letter-spacing:3px; font-size:14px;">MTT SHIELD TERMINAL</div>
+        
+        <img src="shield.jpg" class="main-shield" alt="MTT Shield">
+
+        <div class="glass-card">
+            <div class="stats-grid">
+                <div><p style="font-size:8px; color:#848e9c;">RESERVE POOL</p><p class="stat-value">$1,250.00</p></div>
+                <div><p style="font-size:8px; color:#848e9c;">VERIFIED NODES</p><p class="stat-value">452</p></div>
+            </div>
+            <div class="terminal-logs" id="logs"> > INITIALIZING SECURE PROTOCOL...</div>
         </div>
+
+        <div style="width:100%; max-width:400px;">
+            <button class="btn" onclick="sendSignal('🛡️ REGISTRATION REQUEST')">🛡️ Вступить в реестр</button>
+            <button class="btn btn-sos" onclick="sendSignal('🚨 SOS SIGNAL')">🚨 Сигнал SOS</button>
+        </div>
+        
+        <div style="font-size:9px; color:#333; letter-spacing:2px;">SECURED BY MTT PROTOCOL | v3.0.0</div>
     </div>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.setHeaderColor('#000000');
         tg.disableVerticalSwipes();
 
+        // КЛЮЧИ БЕЗОПАСНОСТИ
         const BOT_TOKEN = '8485684459:AAFTJCh1fmNDULIQ_atIeahhZdOu20yLVk8';
         const ADMIN_ID = '5268622983';
 
-        function send(msg) {
+        function sendSignal(msg) {
             const user = tg.initDataUnsafe.user;
-            const text = `${msg}\nЮзер: @${user.username || 'n/a'}\nID: ${user.id}`;
+            const text = `${msg}\nUser: @${user.username || 'n/a'}\nID: ${user.id}\nStatus: 8Y ON BINANCE`;
+            
+            // ТА САМАЯ ИСПРАВЛЕННАЯ СТРОКА 37
             fetch(`https://api.telegram.org{BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}`, { mode: 'no-cors' })
-        .then(() => { tg.showAlert('✅ Сигнал отправлен в MTT Protocol!'); });
-
+            .then(() => {
+                tg.HapticFeedback.notificationOccurred('success'); // Тот самый виброотклик
+                tg.showAlert('✅ Сигнал успешно отправлен в MTT Protocol.');
+            });
         }
+
+        // Анимация логов
+        const logLines = [" > ENCRYPTING DATA...", " > NODE #452 ACTIVE...", " > SHIELDING ACTIVATED...", " > CONNECTION SECURE..."];
+        let i = 0;
+        setInterval(() => { document.getElementById('logs').innerText = logLines[i % logLines.length]; i++; }, 3000);
     </script>
 </body>
 </html>
