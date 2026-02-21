@@ -5,45 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <script src="https://telegram.org"></script>
     <style>
-        /* Бронированная база */
+        /* Монолитная база */
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100vh; width: 100vw; overflow: hidden !important; background: #000; color: #fff; font-family: sans-serif; position: fixed; }
         .app-wrapper { display: flex; flex-direction: column; height: 100vh; background: radial-gradient(circle at center, #111 0%, #000 100%); }
         
-        /* Интерактивный Щит-Кнопка */
+        /* ДИНАМИЧЕСКИЙ ЩИТ И ГРАФИК */
         .header-visual { 
-            position: relative; width: 100%; height: 45vh; display: flex; justify-content: center; align-items: center; z-index: 5;
+            position: relative; width: 100%; height: 42vh; display: flex; justify-content: center; align-items: center; z-index: 5;
             mask-image: radial-gradient(circle, black 35%, transparent 75%);
             -webkit-mask-image: radial-gradient(circle, black 35%, transparent 75%);
         }
         .main-shield { 
             width: 100%; height: 100%; object-fit: contain; cursor: pointer;
             filter: drop-shadow(0 0 30px rgba(243, 186, 47, 0.3)); 
-            transition: transform 0.1s, filter 0.1s; 
+            /* ПЛАВНОСТЬ ПЕРЕХОДОВ */
+            transition: filter 0.4s ease, transform 0.4s ease; 
+            /* ПОСТОЯННАЯ ДИНАМИКА */
+            animation: breath 6s infinite ease-in-out;
         }
-        .main-shield:active { transform: scale(0.95); filter: brightness(2) drop-shadow(0 0 40px #f3ba2f); }
+        @keyframes breath {
+            0%, 100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 20px rgba(243, 186, 47, 0.2)); }
+            50% { transform: scale(1.03); opacity: 1; filter: drop-shadow(0 0 40px rgba(243, 186, 47, 0.4)); }
+        }
+        
+        /* ЭФФЕКТ ПРИ НАЖАТИИ (МЯГКАЯ ВСПЫШКА) */
+        .main-shield:active { 
+            transform: scale(0.97); 
+            filter: brightness(2) drop-shadow(0 0 50px #f3ba2f) !important; 
+            transition: 0.1s; /* Быстрый отклик на нажатие, но плавный возврат */
+        }
 
-        /* Вкладки */
         .tab-content { display: none; flex-direction: column; align-items: center; padding: 20px; flex-grow: 1; justify-content: space-around; z-index: 10; }
-        .tab-active { display: flex !important; animation: fadeIn 0.2s ease; }
+        .tab-active { display: flex !important; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Кнопки */
         .glass-btn { 
-            width: 100%; max-width: 380px; padding: 18px; border-radius: 14px; border: 1px solid rgba(243, 186, 47, 0.4);
+            width: 100%; max-width: 380px; padding: 18px; border-radius: 14px; border: 1px solid rgba(243, 186, 47, 0.3);
             background: rgba(243, 186, 47, 0.05); color: #f3ba2f; font-weight: 800; font-size: 14px; 
-            text-transform: uppercase; cursor: pointer; letter-spacing: 2px; transition: 0.2s;
+            text-transform: uppercase; cursor: pointer; letter-spacing: 2px;
         }
-        .glass-btn:active { background: rgba(243, 186, 47, 0.2); transform: scale(0.97); }
 
-        /* Навигация */
-        .nav-bar { 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; background: #0a0a0a; 
-            border-top: 1px solid rgba(255,255,255,0.05); padding-bottom: 25px; z-index: 20;
-        }
+        .nav-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #0a0a0a; border-top: 1px solid rgba(255,255,255,0.05); padding-bottom: 25px; z-index: 20; }
         .nav-item { padding: 15px; text-align: center; color: #444; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: #f3ba2f; }
-        .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; opacity: 0.4; }
+        .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; opacity: 0.4; pointer-events: none; }
         .nav-item.active .nav-icon { opacity: 1; filter: drop-shadow(0 0 5px #f3ba2f); }
 
         .card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; width: 100%; text-align: left; }
@@ -51,41 +57,36 @@
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- ЩИТ ТЕПЕРЬ ОТПРАВЛЯЕТ SOS -->
         <div class="header-visual">
-            <img src="shield.jpg" class="main-shield" onclick="sendSignal('🚨 EMERGENCY SHIELD SOS')">
+            <img src="shield.jpg" class="main-shield" id="shieldButton">
         </div>
 
-        <!-- ТЕРМИНАЛ -->
         <div id="terminal" class="tab-content tab-active">
-            <div style="text-align:center; opacity:0.4; font-size:10px; letter-spacing:4px;">TAP SHIELD FOR SOS</div>
-            <button class="glass-btn" onclick="openTab('cabinet')">🛡️ Вступить в реестр</button>
+            <div style="text-align:center; opacity:0.3; font-size:10px; letter-spacing:4px;">MTT SHIELD PROTOCOL</div>
+            <button class="glass-btn" id="regButton">🛡️ Вступить в реестр</button>
             <div id="logs" style="font-family:monospace; color:#00ff00; font-size:9px; opacity:0.4;">> SECURE LINK OK</div>
         </div>
 
-        <!-- КАБИНЕТ -->
         <div id="cabinet" class="tab-content">
             <div class="card">
                 <div style="background:#f3ba2f; color:#000; padding:4px 12px; border-radius:20px; font-size:10px; font-weight:900; display:inline-block; margin-bottom:15px;">BRONZE STATUS</div>
-                <div id="user-info" style="font-size:12px; margin-bottom:10px; color:#fff; font-weight:bold;">User: Investor</div>
+                <div id="userName" style="font-size:12px; margin-bottom:10px; color:#fff; font-weight:bold;">User: Investor</div>
                 <div style="font-size:11px; line-height:2.2; color:#888;">
                     ● Спасено от ликвидаций: <span style="color:#f3ba2f">0</span><br>
                     ● Резервный фонд: <span style="color:#f3ba2f">$1,250.00</span>
                 </div>
             </div>
-            <button class="glass-btn" onclick="sendSignal('💎 UPGRADE TO GOLD')">Повысить до GOLD</button>
+            <button class="glass-btn" id="upgradeButton">Повысить до GOLD</button>
         </div>
 
-        <!-- ИСТОРИЯ -->
         <div id="history" class="tab-content">
             <div style="opacity:0.3; text-align:center; font-size:11px;">История протоколов пуста</div>
         </div>
 
-        <!-- НАВИГАЦИЯ -->
         <div class="nav-bar">
-            <div class="nav-item active" onclick="switchTab('terminal', this)"><span class="nav-icon">📡</span>ТЕРМИНАЛ</div>
-            <div class="nav-item" onclick="switchTab('cabinet', this)"><span class="nav-icon">👤</span>КАБИНЕТ</div>
-            <div class="nav-item" onclick="switchTab('history', this)"><span class="nav-icon">📜</span>ИСТОРИЯ</div>
+            <div class="nav-item active" id="nav-terminal"><span class="nav-icon">📡</span>ТЕРМИНАЛ</div>
+            <div class="nav-item" id="nav-cabinet"><span class="nav-icon">👤</span>КАБИНЕТ</div>
+            <div class="nav-item" id="nav-history"><span class="nav-icon">📜</span>ИСТОРИЯ</div>
         </div>
     </div>
 
@@ -94,40 +95,39 @@
         tg.expand();
         tg.disableVerticalSwipes();
 
-        // Отображение имени пользователя в кабинете
         if(tg.initDataUnsafe.user) {
-            document.getElementById('user-info').innerText = 'User: ' + tg.initDataUnsafe.user.first_name;
+            document.getElementById('userName').innerText = 'User: ' + tg.initDataUnsafe.user.first_name;
         }
 
-        function switchTab(tabId, el) {
+        function switchTab(tabId) {
             tg.HapticFeedback.impactOccurred('medium');
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('tab-active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(tabId).classList.add('tab-active');
-            el.classList.add('active');
+            document.getElementById('nav-' + tabId).classList.add('active');
         }
 
-        function openTab(tabId) {
-            const navItems = document.querySelectorAll('.nav-item');
-            if (tabId === 'cabinet') switchTab('cabinet', navItems[1]);
-        }
+        document.getElementById('nav-terminal').addEventListener('click', () => switchTab('terminal'));
+        document.getElementById('nav-cabinet').addEventListener('click', () => switchTab('cabinet'));
+        document.getElementById('nav-history').addEventListener('click', () => switchTab('history'));
+        document.getElementById('regButton').addEventListener('click', () => switchTab('cabinet'));
 
-        // Бронированная отправка v7.0
-        const T_1 = '8151515908'; 
-        const T_2 = 'AAG7u0u0O237m0eLp88vBf96_07X03M817o';
-        const ADMIN_CHANNEL_ID = '-1001554654421'; 
+        const TOKEN = '8485684459:AAFTJCh1fmNDULIQ_atIeahhZdOu20yLVk8';
+        const CHAT_ID = '-1001554654421'; 
 
         function sendSignal(type) {
             tg.HapticFeedback.notificationOccurred('warning');
             const user = tg.initDataUnsafe.user || { username: 'investor', id: '000' };
-            const msg = encodeURIComponent(`🛡️ <b>${type}</b>\n━━━━━━━━━━━━━━\n👤 User: @${user.username}\n🆔 ID: ${user.id}\n🔒 Protocol: v7.0`);
-            const url = `https://api.telegram.org{T_1}:${T_2}/sendMessage?chat_id=${ADMIN_CHANNEL_ID}&text=${msg}&parse_mode=HTML`;
+            const msg = encodeURIComponent(`🛡️ <b>${type}</b>\n━━━━━━━━━━━━━━\n👤 User: @${user.username}\n🆔 ID: ${user.id}\n🔒 Protocol: v7.3 Smooth`);
+            const url = `https://api.telegram.org{TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${msg}&parse_mode=HTML`;
             
             let beacon = new Image();
             beacon.src = url;
-
-            tg.showConfirm('✅ СИГНАЛ ПРИНЯТ\nОператор уведомлен.\nСтатус: MTT SHIELD ACTIVE');
+            tg.showConfirm('✅ СИГНАЛ ПРИНЯТ\nСтатус: MTT SHIELD ACTIVE');
         }
+
+        document.getElementById('shieldButton').addEventListener('click', () => sendSignal('🚨 SHIELD TOUCH SOS'));
+        document.getElementById('upgradeButton').addEventListener('click', () => sendSignal('💎 UPGRADE REQUEST'));
 
         const msgs = ["> NODE ACTIVE", "> ENCRYPTING...", "> SHIELD ON", "> READY"];
         let s = 0;
