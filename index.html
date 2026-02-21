@@ -34,8 +34,9 @@
         function send(msg) {
             const user = tg.initDataUnsafe.user;
             const text = `${msg}\nЮзер: @${user.username || 'n/a'}\nID: ${user.id}`;
-            fetch(`https://api.telegram.org{BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}`)
-            .then(() => { tg.showAlert('✅ Сигнал отправлен!'); });
+            fetch(`https://api.telegram.org{BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}`, { mode: 'no-cors' })
+        .then(() => { tg.showAlert('✅ Сигнал отправлен в MTT Protocol!'); });
+
         }
     </script>
 </body>
